@@ -48,5 +48,6 @@ switch($activetab){
 };
 
 echo $details;
+echo $OUTPUT->single_button($CFG->wwwroot . '/blocks/mcmanager/view_newcourse.php', get_string('newrequest', 'block_mcmanager'));
 echo $OUTPUT->single_button($CFG->wwwroot . '/my/', get_string('backtomymoodle', 'block_mcmanager'));
 echo $OUTPUT->footer();
