@@ -58,10 +58,12 @@
 	function show_archived_courses($user = null) {
 		global $CFG, $DB, $OUTPUT; 
 		$content = '';
+		$select = "status NOT 'pending'";
 		if ($user) {
-			$archived = $DB->get_records('block_mcmanager_records', array('createdbyid' => $user, 'status' => 'approved', 'status' => 'denied'));
+			$archived = $DB->get_records_select('block_mcmanager_records',"status <> 'pending' AND createdbyid = ". $user);
+			//'array('createdbyid' => $user, 'status' => 'approved', 'status' => 'denied'));
 		} else {
-			$archived = $DB->get_records('block_mcmanager_records', array('status'=> 'approved', 'status' => 'denied'));
+			$archived = $DB->get_records_select('block_mcmanager_records', "status <> 'pending'");
 		}
 		if (empty($archived)) {
 			$content =  $OUTPUT->heading(get_string('noarchivedcourses', 'block_mcmanager'));
