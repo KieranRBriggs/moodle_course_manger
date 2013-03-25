@@ -1,0 +1,19 @@
+/* Styles for Moodle Course Manager */
+
+#courselist {
+	width:90%;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+#courselist th {
+	text-align: left;
+}
+
+#courselist td.options {
+	vertical-align: top;
+}
+
+#courselist tr.comments td {
+	font-style: italic;
+}
