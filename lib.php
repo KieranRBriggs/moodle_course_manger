@@ -14,10 +14,10 @@
 			$content = $OUTPUT->heading(get_string('coursespending'));
 			$content .= '<table id="courselist">';
 			foreach($pending as $crs){
-				
+				$options = show_options($crs->id);
 				$req_user = $DB->get_records_sql('SELECT id, firstname, lastname FROM mdl_user WHERE id=?', array($crs->createdbyid));
 				$content .= '<tr>
-						<th>Course Name:</th><td width="60%"> '.$crs->longname.'</td><td rowspan=4 class="options"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/tick.png" /> <img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/cross.png" /> <img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/page_edit.png" /> <a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_comments.php?request_id="'.$crs->id.'><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/pencil.png" /></a></td>
+						<th>Course Name:</th><td width="60%"> '.$crs->longname.'</td><td rowspan=4 class="options">'.$options.'</td>
 					</tr>
 					<tr>
 						<th>Short Name:</th><td> '.$crs->shortname.'</td>
@@ -72,12 +72,13 @@
 		   $table->attributes['class'] = 'archivedcourserequests generaltable';
 		   $table->align = array('center', 'center', 'center', 'center', 'center', 'center');
 		   if (!$user) {
-		   	$table->head = array(get_string('coursetitle','block_mcmanager'), get_string('ebscode', 'block_mcmanager'), get_string('extraebscode', 'block_mcmanager'), get_string('requestreason'), get_string('requestby', 'block_mcmanager'),get_string('hod', 'block_mcmanager'),get_string('extrateachers', 'block_mcmanager'),get_string('status', 'block_mcmanager'));
+		   	$table->head = array(get_string('coursetitle','block_mcmanager'), get_string('ebscode', 'block_mcmanager'), get_string('extraebscode', 'block_mcmanager'), get_string('requestreason'), get_string('requestby', 'block_mcmanager'),get_string('hod', 'block_mcmanager'),get_string('extrateachers', 'block_mcmanager'),get_string('status', 'block_mcmanager'), get_string('options', 'block_mcmanager'));
 		   	} else {
 			 $table->head = array(get_string('coursetitle','block_mcmanager'), get_string('ebscode', 'block_mcmanager'), get_string('extraebscode', 'block_mcmanager'), get_string('requestreason'), get_string('extrateachers', 'block_mcmanager'),get_string('status', 'block_mcmanager'));  	
 		   	}
-		   
+		  
 		   foreach ($archived as $course) {
+		    	$options = show_options($course->id);
 				$row = array();
 		        $row[] = format_string($course->longname);
 		        $row[] = format_string($course->ebscode);
@@ -89,6 +90,9 @@
 		        }
 		        $row[] = format_string($course->extrateachers);
 		        $row[] = format_string($course->status);
+		        if(!$user){
+		        	$row[] = $options;
+		        }
 	        }
 	        
 		    /// Add the row to the table.
@@ -101,3 +105,16 @@
 		return $content;
 	}
 	
+	function show_options($courseid, $user = null) {
+		global $CFG;
+		$content = '';
+		if($user) {
+		$content .= '<img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/tick.png" />';
+		}
+		$content .= '<img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/cross.png" />
+		<img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/page_edit.png" />
+		<a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_comments.php?courseid='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/pencil.png" /></a>';
+		
+		return $content;
+		
+	}

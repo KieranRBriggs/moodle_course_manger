@@ -26,3 +26,4 @@ $string['status'] = 'Status';
 $string['coursetitle'] = 'Title';
 $string['hod'] = 'Dept. Head';
 $string['extrateachers'] = 'Extra Teachers';
+$string['options'] = 'Options';
