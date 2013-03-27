@@ -17,3 +17,9 @@
 #courselist tr.comments td {
 	font-style: italic;
 }
+
+table.comments {
+	width:90%;
+	margin-left:auto;
+	margin-right:auto;
+}

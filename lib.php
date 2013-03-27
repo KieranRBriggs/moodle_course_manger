@@ -1,7 +1,11 @@
 <?php
 
+
 	function show_pending_courses($user = null) {
-		global $CFG, $DB, $OUTPUT;
+		global $CFG, $DB, $OUTPUT, $USER;
+		
+		require_once($CFG->dirroot.'/lib/moodlelib.php');
+		
 		if ($user) {
 			$pending = $DB->get_records('block_mcmanager_records', array('createdbyid' => $user, 'status' => 'pending'));
 		} else {
@@ -15,8 +19,9 @@
 			$content .= '<table id="courselist">';
 			foreach($pending as $crs){
 				$options = show_options($crs->id);
-				$req_user = $DB->get_records_sql('SELECT id, firstname, lastname FROM mdl_user WHERE id=?', array($crs->createdbyid));
-				$content .= '<tr>
+				$userid = $crs->createdbyid;
+		   		$name = $DB->get_record('user', array('id' =>$userid), $fields='firstname, lastname', $strictness=IGNORE_MISSING);
+		   		$content .= '<tr>
 						<th>Course Name:</th><td width="60%"> '.$crs->longname.'</td><td rowspan=4 class="options">'.$options.'</td>
 					</tr>
 					<tr>
@@ -41,7 +46,7 @@
 						<th>Comments:</th><td colspan=2 > Comments go here...</td>
 					</tr>
 					<tr>
-						<th>Requested By:</th><td><a href="'.$CFG->wwwroot.'/user/profile.php?id='.$crs->createdbyid.'">'.$crs->createdbyid.'</a></td>
+						<th>Requested By:</th><td><a href="'.$CFG->wwwroot.'/user/profile.php?id='.$crs->createdbyid.'">'.$name->firstname.' '.$name->lastname.'</a></td>
 					</tr>
 					<tr>
 						<td colspan=3><hr /></td>';
@@ -56,7 +61,10 @@
 	}
 	
 	function show_archived_courses($user = null) {
-		global $CFG, $DB, $OUTPUT; 
+		global $CFG, $DB, $OUTPUT, $USER; 
+		
+		require_once($CFG->dirroot.'/lib/moodlelib.php');
+		
 		$content = '';
 		$select = "status NOT 'pending'";
 		if ($user) {
@@ -78,14 +86,17 @@
 		   	}
 		  
 		   foreach ($archived as $course) {
-		    	$options = show_options($course->id);
+		   		$userid = $course->createdbyid;
+		   		$name = $DB->get_record('user', array('id' =>$userid), $fields='firstname, lastname', $strictness=IGNORE_MISSING);
+		   		$options = show_options($course->id);
 				$row = array();
 		        $row[] = format_string($course->longname);
 		        $row[] = format_string($course->ebscode);
 		        $row[] = format_string($course->extraebs);
 		        $row[] = $course->extrainfo;
 		        if(!$user) {
-		        	$row[] = format_string($course->createdbyid);
+		        	//$row[] = format_string($name, true);
+		        	$row[] = '<a href="'.$CFG->wwwroot.'/user/profile.php?id='.$course->createdbyid.'">'. format_string($name->firstname).' '.format_string($name->lastname).'</a>';
 		        	$row[] = format_string($course->hod);
 		        }
 		        $row[] = format_string($course->extrateachers);
@@ -109,12 +120,93 @@
 		global $CFG;
 		$content = '';
 		if($user) {
-		$content .= '<img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/tick.png" />';
+		$content .= '<a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_request_actions.php?action=approve&id='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/tick.png" /></a>';
 		}
-		$content .= '<img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/cross.png" />
-		<img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/page_edit.png" />
+		$content .= '<a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_request_actions.php?action=delete&id='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/cross.png" /></a>
+		<a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_request_actions.php?action=edit&id='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/page_edit.png" /></a>
 		<a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_comments.php?courseid='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/pencil.png" /></a>';
 		
 		return $content;
 		
 	}
+
+	function show_comments($courseid) {
+		global $CFG, $DB;
+		
+		$previous_comments = $DB->get_records('block_mcmanager_comments', array('requestid' => $courseid));
+		
+		if(!empty($previous_comments)){
+			$table = new html_table();
+			$table->attributes['class'] = 'comments generaltable';
+			$table->align = array('center', 'center', 'center');
+			$table->head = array(get_string('date','block_mcmanager'), get_string('message', 'block_mcmanager'), get_string('from', 'block_mcmanager'));
+			foreach($previous_comments as $comment) {
+				$name = $DB->get_record('user', array('id' =>$comment->createdbyid), $fields='firstname, lastname', $strictness=IGNORE_MISSING);
+		   		
+				$row = array();
+			    $row[] = gmdate("d/m/Y - H:m", $comment->dt);
+			    //$row[] = format_string($comment->dt);
+			    $row[] = format_string($comment->message);
+			    $row[] = '<a href="'.$CFG->wwwroot.'/user/profile.php?id='.$comment->createdbyid.'">'. format_string($name->firstname).' '.format_string($name->lastname).'</a>';
+			 }
+			 $table->data[] = $row;
+			 $content = html_writer::table($table);
+			 return $content;
+		}
+
+	}
+
+class course_manipulation {
+	function create_request($data) {
+    	global $USER, $DB, $CFG;
+        $data->requester = $USER->id;
+  
+          // Setting the default category if none set.
+          if (empty($data->category) || empty($CFG->requestcategoryselection)) {
+              $data->category = $CFG->defaultrequestcategory;
+          }
+  
+          // Summary is a required field so copy the text over
+          $data->summary       = $data->summary_editor['text'];
+          $data->summaryformat = $data->summary_editor['format'];
+  
+          $data->id = $DB->insert_record('block_mcmanager_records', $data);
+  
+          // Create a new course_request object and return it
+          $request = new course_request($data);
+  
+          // Notify the admin if required.
+          if ($users = get_users_from_config($CFG->courserequestnotify, 'moodle/site:approvecourse')) {
+  
+              $a = new stdClass;
+              $a->link = "$CFG->wwwroot/blocks/mcmanager/view_courses_admin.php?courses=pending";
+              $a->user = fullname($USER);
+              $subject = get_string('courserequest');
+              $message = get_string('courserequestnotifyemail', 'admin', $a);
+              foreach ($users as $user) {
+                  $request->notify($user, $USER, 'courserequested', $subject, $message);
+              }
+          }
+  
+          return $request;
+      }
+      
+      function approve_course() {
+          global $CFG, $DB;
+          
+          $data = array();
+          
+          // Apply course default settings
+          $data->format             = $courseconfig->format;
+          $data->newsitems          = $courseconfig->newsitems;
+          $data->showgrades         = $courseconfig->showgrades;
+          $data->showreports        = $courseconfig->showreports;
+          $data->maxbytes           = $courseconfig->maxbytes;
+          $data->groupmode          = $courseconfig->groupmode;
+          $data->groupmodeforce     = $courseconfig->groupmodeforce;
+          $data->visible            = $courseconfig->visible;
+          $data->visibleold         = $data->visible;
+          $data->lang               = $courseconfig->lang;
+
+	}
+}

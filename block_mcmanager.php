@@ -20,7 +20,7 @@ class block_mcmanager extends block_list {
 		$this->content->items = array();
 		$this->content->icons = array();
 		
-		$this->content->items[] = html_writer::tag('a',get_string('newrequest','block_mcmanager'), array('href' => 'view_courserequest.php'));
+		$this->content->items[] = html_writer::tag('a',get_string('newrequest','block_mcmanager'), array('href' => $CFG->wwwroot. '/blocks/mcmanager/view_newcourse.php'));
 		$this->content->icons[] = html_writer::empty_tag('img', array('src' => $CFG->wwwroot.'/blocks/mcmanager/pix/add.png', 'class' => 'icon'));
 		
 		$this->content->items[] = html_writer::tag('a',get_string('managerequests','block_mcmanager'), array('href' => $CFG->wwwroot . '/blocks/mcmanager/view_courses_user.php?courses=pending'));
