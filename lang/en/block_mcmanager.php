@@ -21,7 +21,6 @@ $string['missingcomment'] = 'You need to fill in the box to submit a comment';
 $string['headerconfig'] = 'Email Settings for Moodle Course Manager';
 $string['descconfig'] = 'These settings are for emails';
 $string['newcourseuser'] = 'New Course Request - User';
-$string['descnewcourseuser'] = 'Content of new course email for user';
 
 //Settings for Course Requests
 $string['ebscode'] = 'Main EBS Code';
@@ -30,8 +29,8 @@ $string['requestby'] = 'Requested By';
 $string['status'] = 'Status';
 $string['coursetitle'] = 'Title';
 $string['hod'] = 'Dept. Head';
-$string['extrateachers'] = 'Extra Teachers';
 $string['options'] = 'Options';
+$string['descnewcourseuser'] = 'content of email sent to user for course request.';
 
 //form strings
 $string['longname'] = 'Full Course Name';
@@ -47,11 +46,26 @@ $string['extraebs'] = 'Extra EBS Codes';
 $string['extraebs_help'] = 'Any other course codes you want to access this course. Please seperate each code with a comma ( \',\' ) ';
 $string['hod'] = 'Department Head';
 $string['nohod'] = 'You must enter the HOD for this course';
-$string['extrateacher'] = 'Other users with teacher rights';
-$string['extrateacher_help'] = 'Add the names of any other members of staff you want to be able to edit this course. Please seperate each code with a comma ( \',\' ) ';
+$string['extrateachers'] = 'Other users with teacher rights';
+$string['extrateachers_help'] = 'Add the names of any other members of staff you want to be able to edit this course. Please seperate each code with a comma ( \',\' ) ';
 $string['extrainfo'] = 'Extra information for Moodle administrator';
 $string['extradetails'] = 'Any extra information about your course request';
 $string['clear'] = 'Clear Form';
 $string['comment'] = 'Submit Comment';
 $string['commentsarea'] = 'Add Comment to this request';
 $string['commentheader'] = 'View and Add Comments about this Course';
+$string['submittedcomment'] = 'Thank you for submitting a comment about this course request.  Please check back soon about the status of your course';
+
+//Default emails
+$string['defaultnewcourseuser'] = 'You have requested a new course with the details below.
+
+Course:   [course_name]
+EBS Code: [course_code]
+
+This request will now be dealt with and you will recieve a decision soon
+
+_________________
+Moodle Adminstrator
+Note: This is a server generated email.  Please do not reply to this address.
+';
+

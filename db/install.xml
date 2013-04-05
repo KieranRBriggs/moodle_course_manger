@@ -18,12 +18,13 @@
         <FIELD NAME="category" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="enrolkey" NEXT="status"/>
         <FIELD NAME="status" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="category" NEXT="extrateachers"/>
         <FIELD NAME="extrateachers" TYPE="char" LENGTH="200" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="status" NEXT="hod"/>
-        <FIELD NAME="hod" TYPE="char" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="extrateachers" NEXT="req_type"/>
+        <FIELD NAME="hod" TYPE="char" LENGTH="50" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="extrateachers" NEXT="req_type"/>
         <FIELD NAME="req_type" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="hod" NEXT="req_values"/>
         <FIELD NAME="req_values" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="req_type" NEXT="createdate"/>
-        <FIELD NAME="createdate" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="req_values" NEXT="extrainfo"/>
+        <FIELD NAME="createdate" TYPE="bigint" LENGTH="100" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="req_values" NEXT="extrainfo"/>
         <FIELD NAME="extrainfo" TYPE="char" LENGTH="255" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="createdate" NEXT="summary"/>
-        <FIELD NAME="summary" TYPE="char" LENGTH="512" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="extrainfo"/>
+        <FIELD NAME="summary" TYPE="char" LENGTH="255" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="extrainfo" NEXT="summaryformat"/>
+        <FIELD NAME="summaryformat" TYPE="tinyint" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="summary"/>
         
       </FIELDS>
       <KEYS>
@@ -35,7 +36,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="requestid"/>
         <FIELD NAME="requestid" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="createdbyid"/>
-        <FIELD NAME="createdbyid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="requestid" NEXT="dt"/>
+        <FIELD NAME="createdbyid" TYPE="bigint" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="requestid" NEXT="dt"/>
         <FIELD NAME="dt" TYPE="Int" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="createdbyid" NEXT="message"/>
         <FIELD NAME="message" TYPE="char" LENGTH="300" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="dt"/>
       </FIELDS>

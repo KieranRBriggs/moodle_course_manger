@@ -35,4 +35,8 @@ class block_mcmanager extends block_list {
 		}
 
 	}	
+	
+	function has_config() {
+		return true;
+	}
 }

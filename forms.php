@@ -44,14 +44,14 @@ class coursedetails_form extends moodleform {
 		$mform->addElement('text', 'hod', get_string('hod', 'block_mcmanager'));
 		$mform->addRule('hod', get_string('nohod', 'block_mcmanager'), 'required');
 		
-		$mform->addElement('textarea', 'extrateacher', get_string('extrateacher', 'block_mcmanager'),'wrap="virtual" rows="5" cols="20"');
-		$mform->setType('extrateacher', PARAM_TEXT);
-        $mform->addHelpButton('extrateacher','extrateacher', 'block_mcmanager');
+		$mform->addElement('textarea', 'extrateachers', get_string('extrateachers', 'block_mcmanager'),'wrap="virtual" rows="5" cols="20"');
+		$mform->setType('extrateachers', PARAM_TEXT);
+        $mform->addHelpButton('extrateachers','extrateachers', 'block_mcmanager');
 		
-		$mform->addElement('header','extrainfo', get_string('extrainfo', 'block_mcmanager'));
+		$mform->addElement('header','extradetails', get_string('extrainfo', 'block_mcmanager'));
 		
-		$mform->addElement('textarea', 'extradetails', get_string('extradetails', 'block_mcmanager'),'wrap="virtual" rows="5" cols="50"');
-		$mform->setType('extradetails', PARAM_TEXT);
+		$mform->addElement('textarea', 'extrainfo', get_string('extradetails', 'block_mcmanager'),'wrap="virtual" rows="5" cols="50"');
+		$mform->setType('extrainfo', PARAM_TEXT);
 		
 		//normally you use add_action_buttons instead of this code
 		$buttonarray=array();
@@ -92,6 +92,7 @@ class comments_form extends moodleform {
 		
 		$mform =& $this->_form;
 		
+		$mform->addElement('hidden', 'courseid', '1');
 		$mform->addElement('header','commentdetails', get_string('commentheader', 'block_mcmanager'));
 		$mform->addElement('textarea', 'comment', get_string('commentsarea', 'block_mcmanager'), array('rows'=>'8', 'cols'=>'70'));
         $mform->addRule('comment', get_string('missingcomment', 'block_mcmanager'), 'required', null, 'client');

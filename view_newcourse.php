@@ -4,6 +4,7 @@ require_once("../../config.php");
 global $CFG, $DB;
 
 require_once($CFG->dirroot . '/blocks/mcmanager/forms.php');
+require_once($CFG->dirroot . '/blocks/mcmanager/lib.php');
 require_login();
 
 /** Page Settings **/
@@ -24,15 +25,16 @@ $returnurl = $CFG->wwwroot . '/my/';
 
 echo $OUTPUT->header();
 
-$newcourse = new coursedetails_form($returnurl, compact('editoroptions'));
+//$newcourse = new coursedetails_form($returnurl, compact('editoroptions'));
+$newcourse = new coursedetails_form();
 
 if ($newcourse->is_cancelled()) {
     
-} else if ($coursedata = $newcourse->get_data()) {
-	
-	create_request();
+} else if ($fromform = $newcourse->get_data()) {
+	$emailcontent = get_config('mcmanager', 'newcourseuser_email');
+	create($fromform);
 	// and redirect back to the course listing.
-    notice(get_string('courserequestsuccess'), $returnurl);
+    notice($emailcontent, $returnurl);
     
 } else {
 	//$newcourse->set_data($toform);

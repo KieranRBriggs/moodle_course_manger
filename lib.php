@@ -119,11 +119,11 @@
 	function show_options($courseid, $user = null) {
 		global $CFG;
 		$content = '';
-		if($user) {
-		$content .= '<a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_request_actions.php?action=approve&id='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/tick.png" /></a>';
+		if(!$user) {
+		$content .= '<a href="'.$CFG->wwwroot.'/blocks/mcmanager/course_request.php?action=approve&id='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/tick.png" /></a>';
 		}
-		$content .= '<a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_request_actions.php?action=delete&id='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/cross.png" /></a>
-		<a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_request_actions.php?action=edit&id='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/page_edit.png" /></a>
+		$content .= '<a href="'.$CFG->wwwroot.'/blocks/mcmanager/course_request.php?action=delete&id='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/cross.png" /></a>
+		<a href="'.$CFG->wwwroot.'/blocks/mcmanager/course_request.php?action=edit&id='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/page_edit.png" /></a>
 		<a href="'.$CFG->wwwroot.'/blocks/mcmanager/view_comments.php?courseid='.$courseid.'"><img src="'.$CFG->wwwroot.'/blocks/mcmanager/pix/pencil.png" /></a>';
 		
 		return $content;
@@ -134,27 +134,67 @@
 		global $CFG, $DB;
 		
 		$previous_comments = $DB->get_records('block_mcmanager_comments', array('requestid' => $courseid));
-		
 		if(!empty($previous_comments)){
 			$table = new html_table();
 			$table->attributes['class'] = 'comments generaltable';
 			$table->align = array('center', 'center', 'center');
 			$table->head = array(get_string('date','block_mcmanager'), get_string('message', 'block_mcmanager'), get_string('from', 'block_mcmanager'));
 			foreach($previous_comments as $comment) {
-				$name = $DB->get_record('user', array('id' =>$comment->createdbyid), $fields='firstname, lastname', $strictness=IGNORE_MISSING);
-		   		
 				$row = array();
-			    $row[] = gmdate("d/m/Y - H:m", $comment->dt);
+				$name = $DB->get_record('user', array('id' =>$comment->createdbyid), $fields='firstname, lastname', $strictness=IGNORE_MISSING);
+		   		$row[] = gmdate("d/m/Y - H:m", $comment->dt);
 			    //$row[] = format_string($comment->dt);
 			    $row[] = format_string($comment->message);
 			    $row[] = '<a href="'.$CFG->wwwroot.'/user/profile.php?id='.$comment->createdbyid.'">'. format_string($name->firstname).' '.format_string($name->lastname).'</a>';
+			    $table->data[] = $row;
 			 }
-			 $table->data[] = $row;
 			 $content = html_writer::table($table);
 			 return $content;
 		}
 
 	}
+	
+	function create($data) {
+        global $USER, $DB, $CFG;
+        
+        require_once($CFG->dirroot.'/course/lib.php');
+        require_once($CFG->dirroot.'/lib/moodlelib.php');
+        
+        $data->requester 	= $data->user;
+        $data->status 		= 'PENDING';
+        $data->createdate 	= time();
+
+        // Setting the default category if none set.
+        if (empty($data->category) || empty($CFG->requestcategoryselection)) {
+            $data->category = $CFG->defaultrequestcategory;
+        }
+
+        // Summary is a required field so copy the text over
+        $data->summary       = $data->summary['text'];
+        $data->summaryformat = 1; //$data->summary['format'];
+        print_object($data);
+        $data->id = $DB->insert_record('block_mcmanager_records', $data);
+
+        // Create a new course_request object and return it
+        //$request = new course_request($data);
+        $request = new course_request($data);
+        // Notify the admin if required.
+        if ($users = get_users_from_config($CFG->courserequestnotify, 'moodle/site:approvecourse')) {
+
+            $a = new stdClass;
+            $a->link = "$CFG->wwwroot/block_mcmanager/view_courses_user.php";
+            $a->user = fullname($USER);
+            $subject = get_string('courserequest');
+            $message = get_string('courserequestnotifyemail', 'admin', $a);
+            //$subject = get_config('mcmanager', 'newcourseuser_email');
+            //$message = get_string('courserequestnotifyemail', 'admin', $a);
+            foreach ($users as $user) {
+            	$request->notify($user, $USER->id, 'courserequested', $subject, $message);
+            }
+        }
+
+        return $request;
+    }
 
 class course_manipulation {
 	function create_request($data) {

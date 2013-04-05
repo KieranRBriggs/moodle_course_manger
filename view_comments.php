@@ -2,7 +2,7 @@
 
 require_once("../../config.php");
 
-global $CFG;
+global $CFG, $USER;
 
 require_once($CFG->dirroot . '/blocks/mcmanager/forms.php');
 require_once($CFG->dirroot . '/blocks/mcmanager/lib.php');
@@ -22,17 +22,28 @@ $PAGE->navbar->add(get_string('comments', 'block_mcmanager'), new moodle_url('/b
 
 
 /// Where we came from. Used in a number of redirects.
-$returnurl = $CFG->wwwroot . '/my/';
-
 $courseid = required_param('courseid', PARAM_INT);
+$returnurl = $CFG->wwwroot . '/blocks/mcmanager/view_comments.php?courseid=' . $courseid;
+
+
 echo $OUTPUT->header();
 
 $newcourse = new comments_form($returnurl, compact('editoroptions'));
 
 if ($newcourse->is_cancelled()) {
+	redirect($CFG->wwwroot.'/my/');
     
-} else if ($coursedata = $newcourse->get_data()) {
+} else if ($fromform = $newcourse->get_data()) {
 	
+	$record = new stdClass();
+	$record->requestid      = $fromform->courseid;
+	$record->createdbyid 	= $USER->id;
+	$record->message		= $fromform->comment;
+	$record->dt				= time();
+	//print_object($record);
+	$DB->insert_record('block_mcmanager_comments', $record, false);
+	
+	notice(get_string('submittedcomment','block_mcmanager'), $returnurl);
     
 } else {
 	//$newcourse->set_data($toform);
